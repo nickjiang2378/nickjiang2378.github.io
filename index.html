@@ -1,31 +1,92 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>Nick Jiang's Website</title>
-		<!-- link to main stylesheet -->
-		<link rel="stylesheet" type="text/css" href="/css/main.css">
+	<html>
+		<head>
+	    <script src="https://cdn.jsdelivr.net/npm/d3-require@1"></script>
+	    <script>
+	    let user = undefined
+	    let counter = undefined
+	    //Redirect
+	    redirectDict = {
+	      "A": "https://observablehq.com/d/dbdc081fec5a9eab",
+	      "B": "https://observablehq.com/d/36aea5cd0365a0a0"
+
+	    }
+	    d3.require('https://unpkg.com/parse@2.6.0/dist/parse.min.js')
+	      .then((Parse) => {
+	    // api keys
+	    Parse.initialize("API KEY1",
+			     "API KEY2")
+	    Parse.serverURL = "https://parseapi.back4app.com/"   
+	    Parse.enableLocalDatastore()
+	    let User = Parse.Object.extend("Cookie") // class is lazily evaluated
+	    let Counter = Parse.Object.extend("Counter")
+	    let getNewCondition = (callBack) => {
+	      let queryCounter = new Parse.Query(Counter)
+	      let newCondition = undefined
+	      console.log(queryCounter)
+	      queryCounter.first()
+		  .then((res) => {
+		    if (!res) {
+		      console.log("Error: Counter Not Found; New Counter Created")
+		      counter = new Counter()
+		      counter.save({username: "cormorant",As: 1, Bs:0})
+			  .catch((e) => console.log(e))
+		      newCondition = "A" //New Condition defaults to A
+		    }
+		    else {
+		      counter = res
+		      let timesA = counter.get("As")
+		      let timesB = counter.get("Bs")
+		      if (timesA > timesB) {
+			console.log("Check B")
+			newCondition = "B"
+			counter.increment("Bs")
+			counter.save()
+		      }
+		      else {
+			console.log("Check A")
+			newCondition = "A"
+			counter.increment("As")
+			counter.save()
+		      }
+		    }
+		    callBack(newCondition)
+		  })
+	      //return newCondition
+	    }
+	    // have we been routed before?
+	    let query = new Parse.Query(User)
+	    query.fromLocalDatastore()
+	    query.first()
+		 .then((res) => {  //res = a single User
+	      let condition = undefined
+	      if (!res) { //res is 
+		  user = new User() // if local storage is empty,
+		  user.pin() // bind to local storage
+		  // assign user to condition
+		  condition = getNewCondition((condition) => {
+		    console.log(condition)
+		    user.save({username: 'cormorant',
+			     condition: condition
+		  }).catch((e) => console.log(e.message))
+		    window.location = redirectDict[condition]
+		  }
+		  )
+		  // save to db
+	      }
+	      else {
+		  // recover user's assigned condition
+		  user = res
+		  condition = user.get('condition')
+		  console.log(condition)
+		  window.location = redirectDict[condition]
+	      }
+	      // TODO: do the routing
+	      console.log('route ' + user.id + ' to ' + condition)
+	    })
+	    // user.unPin()
+		// throw out our row. will be re-assigned on reload.
+	})
+	    </script>
 	</head>
-	<body>
-		<nav>
-    		<ul>
-        		<li><a href="/">Home</a></li>
-	        	<li><a href="/about">About</a></li>
-        		<li><a href="/cv">CV</a></li>
-        		<li><a href="/blog">TEST</a></li>
-    		</ul>
-		</nav>
-		<div class="container">
-    		<div class="blurb">
-        		<h1>Hi there, I'm Nick!</h1>
-				<p>I'm best known as the horrible cop from <em>A Touch of Evil</em> Don't trust me. <a href="/about">Read more about my life...</a></p>
-    		</div><!-- /.blurb -->
-		</div><!-- /.container -->
-		<footer>
-    		<ul>
-        		<li><a href="mailto:hankquinlanhub@gmail.com">email</a></li>
-        		<li><a href="https://github.com/hankquinlan">github.com/hankquinlan</a></li>
-			<li><a href="https://observablehq.com/@nickjiang2378/page-rank">The Pagerank Algorithm</a></li>
-			</ul>
-		</footer>
-	</body>
 </html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<head>
+<link href="https://fonts.googleapis.com/css?family=Lora:400,700|Montserrat:300" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css"/>
+<link rel = "stylesheet" href = "main.css"/>
+</head>
+
+<body>
+	<div id="Slide">
+		<div id = "textContainer1""></div>
+		<div id = "slides1"></div>
+		<div id = "interactive1"></div>
+		<div id = "invisible1" class = "invisibleElement"> </div>
+	</div>
+	<footer class="footer">The Pagerank Algorithm</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/d3-require@1"></script>
+<script>
+      let user = undefined
+      let currLen = 0
+      //Redirect
+      d3.require('https://unpkg.com/parse@2.6.0/dist/parse.min.js')
+        .then((Parse) => {
+      // api keys
+      Parse.initialize("zSbjjpCDEccm7CTsP6JKqtPcaSl6EaIHV5qebJZj",
+                     "Rxc0iwvwU6j1LsuNHrKJrDy4HWJgwPodLfbmYVLx")
+      Parse.serverURL = "https://parseapi.back4app.com/"   
+      Parse.enableLocalDatastore("zSbjjpCDEccm7CTsP6JKqtPcaSl6EaIHV5qebJZj",
+                     "Rxc0iwvwU6j1LsuNHrKJrDy4HWJgwPodLfbmYVLx")
+      let User = Parse.Object.extend("Cookie") // class is lazily evaluated
+
+            // have we been routed before?
+      let query = new Parse.Query(User)
+      query.fromLocalDatastore()
+      query.first()
+     .then((res) => {  //res = a single User
+        if (!res) { //res is 
+        	console.log("New User Made")
+	      	user = new User() // if local storage is empty,
+	      	user.pin() // bind to local storage
+	      	user.save({condition: "1", sequence1:[],sequence2:[],sequence3:[],
+	      		preQuiz:[],afterQuiz:[]
+      }).then((userObject) => {console.log(userObject.id + " Object Created")},
+      			(error) => {console.log("Error: New User not saved")})
+      // assign user to condition
+        }
+        else {
+      // recover user's assigned condition
+      		console.log("Previous User Recovered")
+      		user = res
+
+        }
+        // TODO: do the routing
+      })
+      // user.unPin()
+    // throw out our row. will be re-assigned on reload.
+  })
+</script>
+
+<script type="module">
+
+let blankSlate = function(divId) {
+	document.getElementById("Slide").innerHTML = "";
+
+	let slideDiv = document.getElementById("Slide")
+
+	let newDiv; 
+
+	newDiv = document.createElement("div")
+	newDiv.setAttribute("id","textContainer" + divId)
+	newDiv.className = "textBoxTest"
+	slideDiv.appendChild(newDiv)
+
+	newDiv = document.createElement("div")
+	newDiv.setAttribute("id","slides" + divId)
+	slideDiv.appendChild(newDiv)
+
+	newDiv = document.createElement("div")
+	newDiv.setAttribute("id","interactive" + divId)
+	newDiv.className = "interactiveBox"
+	slideDiv.appendChild(newDiv)
+
+	newDiv = document.createElement("div")
+	newDiv.setAttribute("id","invisible" + divId)
+	newDiv.className = "invisibleElement"
+	slideDiv.appendChild(newDiv)
+}
+import notebook from "https://api.observablehq.com/@nickjiang2378/page-rank.js?v=3";
+import notebook1 from "https://api.observablehq.com/@nickjiang2378/page-rank-v1-f.js?v=3"
+
+import notebookPreQuiz1 from "https://api.observablehq.com/@nickjiang2378/page-rank-v1-f-prequiz.js?v=3"
+
+import notebookPreQuiz2 from "https://api.observablehq.com/@nickjiang2378/page-rank-v1-f-prequiz-part2.js?v=3"
+
+import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
+
+let showPreQuiz1 = function() {
+	blankSlate("Pre1")
+	let currLen = user.get("preQuiz").length
+    console.log("CurrLen: " + currLen)
+
+	let module = new Runtime().module(notebookPreQuiz1, name => {
+		if (name == "slideButtons") {
+			console.log("SlideButtons Caught")
+			return new Inspector(document.querySelector("#slidesPre1"))
+		}
+	  if (name == "textLayout") {
+	    return new Inspector(document.querySelector("#textContainerPre1"));
+	  }
+	  if (name == "interactive") {
+	    return new Inspector(document.querySelector("#interactivePre1"));
+	  }
+
+	if (name != "textLayout" && name != "interactive" && name != "slideButtons") {
+			return new Inspector(document.querySelector("#invisiblePre1"))
+	}
+	});
+	let value;
+	window.addEventListener("send", async function(e) {
+		console.log("Event Received from " + e.detail)
+		value = await module.value("analysis")
+		console.log(value)
+		//let newTime = new Date()
+		console.log(user)
+		let previous = user.get("preQuiz").slice(0,currLen)
+		console.log(previous.concat(value.preQuiz1))
+
+		user.set("preQuiz",previous.concat(value.preQuiz1)) //This is bug when user reloads the site
+		//user.set("sequence1",value.sequence1)
+		await user.save().catch((e) => {console.log(e)})
+		let newEvent = new CustomEvent("send",{detail: -1})
+		//document.clear()
+	})
+
+}
+
+let showPreQuiz2 = function() {
+	blankSlate("Pre2")
+	let currLen = user.get("preQuiz").length
+
+	let module = new Runtime().module(notebookPreQuiz2, name => {
+		if (name == "slideButtons") {
+			console.log("SlideButtons Caught")
+			return new Inspector(document.querySelector("#slidesPre2"))
+		}
+	  if (name == "textLayout") {
+	    return new Inspector(document.querySelector("#textContainerPre2"));
+	  }
+	  if (name == "interactive") {
+	    return new Inspector(document.querySelector("#interactivePre2"));
+	  }
+
+	if (name != "textLayout" && name != "interactive" && name != "slideButtons") {
+			return new Inspector(document.querySelector("#invisiblePre2"))
+	}
+	});
+
+	let value;
+	window.addEventListener("send", async function(e) {
+		console.log("Event Received from " + e.detail)
+		value = await module.value("analysis")
+		console.log(value)
+		//let newTime = new Date()
+		console.log(user)
+		let previous = user.get("preQuiz2").slice(0,currLen)
+		console.log(previous.concat(value.sequence1))
+
+		user.set("preQuiz",previous.concat(value.sequence1)) //This is bug when user reloads the site
+		//user.set("sequence1",value.sequence1)
+		await user.save().catch((e) => {console.log(e)})
+		let newEvent = new CustomEvent("send",{detail: -1})
+		//document.clear()
+	})
+
+}
+
+let showSlide1 = function() {
+// Load the Observable runtime and inspector.
+
+	// Your notebook, compiled as an ES module.
+
+	// Load the notebook, observing its cells with a default Inspector
+	// that simply renders the value of each cell into the provided DOM node.
+	blankSlate("1")
+
+	let module = new Runtime().module(notebook, name => {
+		if (name == "slideButtons") {
+			console.log("SlideButtons Caught")
+			return new Inspector(document.querySelector("#slides1"))
+		}
+	  if (name == "textLayout") {
+	    return new Inspector(document.querySelector("#textContainer1"));
+	  }
+	  if (name == "interactive") {
+	    return new Inspector(document.querySelector("#interactive1"));
+	  }
+
+	if (name != "textLayout" && name != "interactive" && name != "slideButtons") {
+			return new Inspector(document.querySelector("#invisible1"))
+	}
+	});
+	let value;
+	window.addEventListener("send", async function(e) {
+		console.log("Event Received from " + e.detail)
+		value = await module.value("analysis")
+		console.log(value)
+		//let newTime = new Date()
+		console.log(user)
+		let previous = user.get("sequence1").slice(0,currLen)
+		console.log(previous.concat(value.sequence1))
+
+		user.set("sequence1",previous.concat(value.sequence1)) //This is bug when user reloads the site
+		//user.set("sequence1",value.sequence1)
+		await user.save().catch((e) => {console.log(e)})
+		let newEvent = new CustomEvent("send",{detail: -1})
+		//document.clear()
+	})
+}
+let showSlide2 = function() {
+	// Load the Observable runtime and inspector.
+
+	// Your notebook, compiled as an ES module.
+
+	// Load the notebook, observing its cells with a default Inspector
+	// that simply renders the value of each cell into the provided DOM node.
+	blankSlate("2")
+	
+	let module = new Runtime().module(notebook1, name => {
+		if (name == "slideButtons") {
+			console.log("SlideButtons Caught")
+			return new Inspector(document.querySelector("#slides2"))
+		}
+	  if (name == "textLayout") {
+	    return new Inspector(document.querySelector("#textContainer2"));
+	  }
+	  if (name == "slide2") {
+	    return new Inspector(document.querySelector("#interactive2"));
+	  }
+
+	if (name != "slide2" && name != "slideButtons" && name != "textLayout") {
+			return new Inspector(document.querySelector("#invisible2"))
+	}
+	});
+}
+
+//showPreQuiz1()
+window.addEventListener("goToPre2",(e) => {
+	showPreQuiz2()
+})
+window.addEventListener("goToSlide1",(e) => {
+	showSlide1()
+})
+showSlide1()
+window.addEventListener("goToSlide2",(e) => {
+	showSlide2()
+})
+
+/*document.getElementById("Slide").innerHTML = "";
+
+let slideDiv = document.getElementById("Slide")
+
+console.log(slideDiv)
+let newDiv; 
+
+newDiv = document.createElement("div")
+newDiv.setAttribute("id","textContainer2")
+slideDiv.appendChild(newDiv)
+
+newDiv = document.createElement("div")
+newDiv.setAttribute("id","slides2")
+slideDiv.appendChild(newDiv)
+
+newDiv = document.createElement("div")
+newDiv.setAttribute("id","interactive2")
+slideDiv.appendChild(newDiv)
+
+newDiv = document.createElement("div")
+newDiv.setAttribute("id","invisible2")
+newDiv.className = "invisibleElement"
+slideDiv.appendChild(newDiv)
+
+//document.body.appendChild(newDiv)
+//document.getElementById("Slide1").className = "slide1Off"
+showSlide2()*/
+</script>
+
+</body>

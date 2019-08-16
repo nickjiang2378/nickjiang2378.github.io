@@ -71,6 +71,117 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
   height: 40%;
 }
 
+
+
+/* The container */
+.containerExplore {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-top: 24px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.containerExplore input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Create a custom radio button */
+.addExplore {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.containerExplore:hover input ~ .addExplore {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.containerExplore input:checked ~ .addExplore {
+  background-color: #79C753;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.addExplore:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.containerExplore input:checked ~ .addExplore:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.containerExplore .addExplore:after {
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+/* Create a custom radio button */
+.deleteExplore {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.containerExplore:hover input ~ .deleteExplore {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.containerExplore input:checked ~ .deleteExplore {
+  background-color: Tomato;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.deleteExplore:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.containerExplore input:checked ~ .deleteExplore:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.containerExplore .deleteExplore:after {
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+
 /*CheckBox*/
 /* The container */
 .container {
@@ -79,6 +190,7 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
   padding-left: 35px;
   margin-bottom: 12px;
   cursor: pointer;
+  font-family: 'Roboto', 'Montserrat';
   font-size: 22px;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -165,7 +277,7 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
 .center {
 
   align-content: center;
- 	text-align: center;
+  text-align: center;
   margin-left:175px;
   margin-right:175px;
   font-family: Montserrat;
@@ -315,7 +427,7 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
   padding-left: 20px;
   padding-right: 20px;
   padding-top:15px;
-  padding-bottom:15px;
+  padding-bottom:10px;
   border: 1.5px solid #1E90FF; /*Dodger Blue*/
   border-radius: 15px;
   align-content:center;

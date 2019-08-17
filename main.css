@@ -21,6 +21,14 @@ text {
    font-weight: 300;
 }
 
+h5 {
+  font-family: 'Montserrat','Roboto','Arial';
+}
+
+h4 {
+  font-family: 'Montserrat','Roboto','Arial';
+}
+
 table {  
     color: #333;
     font-family: 'Roboto', Arial, sans-serif; 
@@ -276,6 +284,7 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
 }
 .center {
 
+  line-height: 135%;
   align-content: center;
   text-align: center;
   margin-left:175px;
@@ -308,8 +317,10 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
   text-align:center;
   transition-duration:0.3s;
   font-size: 20px;
+  font-family: 'Montserrat', 'Roboto','Arial';
   margin-right: 20px;
   margin-left: 20px;
+
 }
 
 
@@ -332,7 +343,7 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
   text-align:center;
   transition-duration:0.3s;
   font-size: 20px;
-  font: Times New Roman
+  font-family: 'Montserrat','Roboto','Arial';
   margin-right: 20px;
   margin-left: 20px;
   border-radius: 15px;
@@ -358,7 +369,7 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
   text-align:center;
   transition-duration:0.3s;
   font-size: 20px;
-  font: Times New Roman
+  font-family: 'Montserrat','Roboto','Arial';
   margin-right: 20px;
   margin-left: 20px;
   border-radius: 15px;
@@ -381,6 +392,7 @@ tr td:hover { background:rgb(128,175,244); color: #FFF; }
   background-color: white;
   color: black;
   border:2px solid #9F9C99;
+  font-family: 'Montserrat','Roboto','Arial';
   text-align:center;
   margin-right: 20px;
   margin-left: 20px;

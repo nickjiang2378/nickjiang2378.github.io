@@ -1,289 +1,213 @@
 <!DOCTYPE html>
-
-<head>
-<link href="https://fonts.googleapis.com/css?family=Lora:400,700|Montserrat:300" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css"/>
-<link rel = "stylesheet" href = "main.css"/>
-</head>
-
-<body>
-	<div id="Slide">
-		<div id = "textContainer1""></div>
-		<div id = "slides1"></div>
-		<div id = "interactive1"></div>
-		<div id = "invisible1" class = "invisibleElement"> </div>
-	</div>
-	<footer class="footer">The Pagerank Algorithm</footer>
-
-
-<script src="https://cdn.jsdelivr.net/npm/d3-require@1"></script>
-<script>
-      let user = undefined
-      let currLen = 0
-      //Redirect
-      d3.require('https://unpkg.com/parse@2.6.0/dist/parse.min.js')
-        .then((Parse) => {
-      // api keys
-      Parse.initialize("zSbjjpCDEccm7CTsP6JKqtPcaSl6EaIHV5qebJZj",
-                     "Rxc0iwvwU6j1LsuNHrKJrDy4HWJgwPodLfbmYVLx")
-      Parse.serverURL = "https://parseapi.back4app.com/"   
-      Parse.enableLocalDatastore("zSbjjpCDEccm7CTsP6JKqtPcaSl6EaIHV5qebJZj",
-                     "Rxc0iwvwU6j1LsuNHrKJrDy4HWJgwPodLfbmYVLx")
-      let User = Parse.Object.extend("Cookie") // class is lazily evaluated
-
-            // have we been routed before?
-      let query = new Parse.Query(User)
-      query.fromLocalDatastore()
-      query.first()
-     .then((res) => {  //res = a single User
-        if (!res) { //res is 
-        	console.log("New User Made")
-	      	user = new User() // if local storage is empty,
-	      	user.pin() // bind to local storage
-	      	user.save({condition: "1", sequence1:[],sequence2:[],sequence3:[],
-	      		preQuiz:[],afterQuiz:[]
-      }).then((userObject) => {console.log(userObject.id + " Object Created")},
-      			(error) => {console.log("Error: New User not saved")})
-      // assign user to condition
-        }
-        else {
-      // recover user's assigned condition
-      		console.log("Previous User Recovered")
-      		user = res
-
-        }
-        // TODO: do the routing
-      })
-      // user.unPin()
-    // throw out our row. will be re-assigned on reload.
-  })
-</script>
-
-<script type="module">
-
-let blankSlate = function(divId) {
-	document.getElementById("Slide").innerHTML = "";
-
-	let slideDiv = document.getElementById("Slide")
-
-	let newDiv; 
-
-	newDiv = document.createElement("div")
-	newDiv.setAttribute("id","textContainer" + divId)
-	newDiv.className = "textBoxTest"
-	slideDiv.appendChild(newDiv)
-
-	newDiv = document.createElement("div")
-	newDiv.setAttribute("id","slides" + divId)
-	slideDiv.appendChild(newDiv)
-
-	newDiv = document.createElement("div")
-	newDiv.setAttribute("id","interactive" + divId)
-	newDiv.className = "interactiveBox"
-	slideDiv.appendChild(newDiv)
-
-	newDiv = document.createElement("div")
-	newDiv.setAttribute("id","invisible" + divId)
-	newDiv.className = "invisibleElement"
-	slideDiv.appendChild(newDiv)
-}
-import notebook from "https://api.observablehq.com/@nickjiang2378/page-rank.js?v=3";
-import notebook1 from "https://api.observablehq.com/@nickjiang2378/page-rank-v1-f.js?v=3"
-
-import notebookPreQuiz1 from "https://api.observablehq.com/@nickjiang2378/page-rank-v1-f-prequiz.js?v=3"
-
-import notebookPreQuiz2 from "https://api.observablehq.com/@nickjiang2378/page-rank-v1-f-prequiz-part2.js?v=3"
-
-import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js";
-
-let showPreQuiz1 = function() {
-	blankSlate("Pre1")
-	let currLen = user.get("preQuiz").length
-    console.log("CurrLen: " + currLen)
-
-	let module = new Runtime().module(notebookPreQuiz1, name => {
-		if (name == "slideButtons") {
-			console.log("SlideButtons Caught")
-			return new Inspector(document.querySelector("#slidesPre1"))
-		}
-	  if (name == "textLayout") {
-	    return new Inspector(document.querySelector("#textContainerPre1"));
-	  }
-	  if (name == "interactive") {
-	    return new Inspector(document.querySelector("#interactivePre1"));
-	  }
-
-	if (name != "textLayout" && name != "interactive" && name != "slideButtons") {
-			return new Inspector(document.querySelector("#invisiblePre1"))
-	}
-	});
-	let value;
-	window.addEventListener("send", async function(e) {
-		console.log("Event Received from " + e.detail)
-		value = await module.value("analysis")
-		console.log(value)
-		//let newTime = new Date()
-		console.log(user)
-		let previous = user.get("preQuiz").slice(0,currLen)
-		console.log(previous.concat(value.preQuiz1))
-
-		user.set("preQuiz",previous.concat(value.preQuiz1)) //This is bug when user reloads the site
-		//user.set("sequence1",value.sequence1)
-		await user.save().catch((e) => {console.log(e)})
-		let newEvent = new CustomEvent("send",{detail: -1})
-		//document.clear()
-	})
-
-}
-
-let showPreQuiz2 = function() {
-	blankSlate("Pre2")
-	let currLen = user.get("preQuiz").length
-
-	let module = new Runtime().module(notebookPreQuiz2, name => {
-		if (name == "slideButtons") {
-			console.log("SlideButtons Caught")
-			return new Inspector(document.querySelector("#slidesPre2"))
-		}
-	  if (name == "textLayout") {
-	    return new Inspector(document.querySelector("#textContainerPre2"));
-	  }
-	  if (name == "interactive") {
-	    return new Inspector(document.querySelector("#interactivePre2"));
-	  }
-
-	if (name != "textLayout" && name != "interactive" && name != "slideButtons") {
-			return new Inspector(document.querySelector("#invisiblePre2"))
-	}
-	});
-
-	let value;
-	window.addEventListener("send", async function(e) {
-		console.log("Event Received from " + e.detail)
-		value = await module.value("analysis")
-		console.log(value)
-		//let newTime = new Date()
-		console.log(user)
-		let previous = user.get("preQuiz2").slice(0,currLen)
-		console.log(previous.concat(value.sequence1))
-
-		user.set("preQuiz",previous.concat(value.sequence1)) //This is bug when user reloads the site
-		//user.set("sequence1",value.sequence1)
-		await user.save().catch((e) => {console.log(e)})
-		let newEvent = new CustomEvent("send",{detail: -1})
-		//document.clear()
-	})
-
-}
-
-let showSlide1 = function() {
-// Load the Observable runtime and inspector.
-
-	// Your notebook, compiled as an ES module.
-
-	// Load the notebook, observing its cells with a default Inspector
-	// that simply renders the value of each cell into the provided DOM node.
-	blankSlate("1")
-
-	let module = new Runtime().module(notebook, name => {
-		if (name == "slideButtons") {
-			console.log("SlideButtons Caught")
-			return new Inspector(document.querySelector("#slides1"))
-		}
-	  if (name == "textLayout") {
-	    return new Inspector(document.querySelector("#textContainer1"));
-	  }
-	  if (name == "interactive") {
-	    return new Inspector(document.querySelector("#interactive1"));
-	  }
-
-	if (name != "textLayout" && name != "interactive" && name != "slideButtons") {
-			return new Inspector(document.querySelector("#invisible1"))
-	}
-	});
-	let value;
-	window.addEventListener("send", async function(e) {
-		console.log("Event Received from " + e.detail)
-		value = await module.value("analysis")
-		console.log(value)
-		//let newTime = new Date()
-		console.log(user)
-		let previous = user.get("sequence1").slice(0,currLen)
-		console.log(previous.concat(value.sequence1))
-
-		user.set("sequence1",previous.concat(value.sequence1)) //This is bug when user reloads the site
-		//user.set("sequence1",value.sequence1)
-		await user.save().catch((e) => {console.log(e)})
-		let newEvent = new CustomEvent("send",{detail: -1})
-		//document.clear()
-	})
-}
-let showSlide2 = function() {
-	// Load the Observable runtime and inspector.
-
-	// Your notebook, compiled as an ES module.
-
-	// Load the notebook, observing its cells with a default Inspector
-	// that simply renders the value of each cell into the provided DOM node.
-	blankSlate("2")
-	
-	let module = new Runtime().module(notebook1, name => {
-		if (name == "slideButtons") {
-			console.log("SlideButtons Caught")
-			return new Inspector(document.querySelector("#slides2"))
-		}
-	  if (name == "textLayout") {
-	    return new Inspector(document.querySelector("#textContainer2"));
-	  }
-	  if (name == "slide2") {
-	    return new Inspector(document.querySelector("#interactive2"));
-	  }
-
-	if (name != "slide2" && name != "slideButtons" && name != "textLayout") {
-			return new Inspector(document.querySelector("#invisible2"))
-	}
-	});
-}
-
-//showPreQuiz1()
-window.addEventListener("goToPre2",(e) => {
-	showPreQuiz2()
-})
-window.addEventListener("goToSlide1",(e) => {
-	showSlide1()
-})
-showSlide1()
-window.addEventListener("goToSlide2",(e) => {
-	showSlide2()
-})
-
-/*document.getElementById("Slide").innerHTML = "";
-
-let slideDiv = document.getElementById("Slide")
-
-console.log(slideDiv)
-let newDiv; 
-
-newDiv = document.createElement("div")
-newDiv.setAttribute("id","textContainer2")
-slideDiv.appendChild(newDiv)
-
-newDiv = document.createElement("div")
-newDiv.setAttribute("id","slides2")
-slideDiv.appendChild(newDiv)
-
-newDiv = document.createElement("div")
-newDiv.setAttribute("id","interactive2")
-slideDiv.appendChild(newDiv)
-
-newDiv = document.createElement("div")
-newDiv.setAttribute("id","invisible2")
-newDiv.className = "invisibleElement"
-slideDiv.appendChild(newDiv)
-
-//document.body.appendChild(newDiv)
-//document.getElementById("Slide1").className = "slide1Off"
-showSlide2()*/
-</script>
-
-</body>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>StutterLess</title>
+    <meta name="description" content="A platform designed and dedicated for people who stutter"/>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
+    <link href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Abel|Great+Vibes&display=swap" rel="stylesheet">
+    <link href="css/aos.css" rel="stylesheet">
+    <link href="css/ekko-lightbox.css" rel="stylesheet">
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+  </head>
+  <body id="top">
+    <header id ="mainpage">
+      <div class="container pt-4">
+        <div id="notforum">
+          <nav class="navbar navbar-expand-lg navbar-dark bg-custom px-0" style="margin-left:60px;"><a class="text-white navbar-brand" href="#">STUTTERLESS</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#da-navbarNav" aria-controls="da-navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse text-uppercase" id="da-navbarNav">
+              <div id="space">
+              <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link smooth-scroll" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link smooth-scroll" href="diagnose.html">Diagnose</a></li>
+                <li class="nav-item"><a class="nav-link smooth-scroll" href="training.html">Training</a></li>
+                <li class="nav-item"><a class="nav-link smooth-scroll" href="forum.html">Forum</a></li>
+                <li class="nav-item"><a class="nav-link smooth-scroll" href="storyboard.html">StoryBoard</a></li>
+                <li class="nav-item"><a class="nav-link smooth-scroll" href="games.html">Games</a></li>
+              </ul>
+               </div>
+            </div>
+          </nav>
+      </div>
+      </div>
+      <div class="da-home-page-text" data-aos="fade-right" data-aos-duration="1000">
+        <div class="container">
+          <div class="col-md-10 col-sm-12 px-0 mx-0">
+            <div class="title-header">
+              <h2 class="display-3" style="margin-left:60px;margin-top: -60px;">S<span style="font-size: 48px;font-family: 'Abel', sans-serif;font-weight: bold">TUTTER</span>L<span style="font-size: 48px;font-family: 'Abel', sans-serif ">ESS</span></h2>
+            </div>
+            <h3 class="h5 mt-3" style="margin-left:60px;margin-top: -60px;">A platform to provide resources and support for fellow stutterers</h3><a class="smooth-scroll btn btn-outline-light mt-4" style="margin-left:60px;margin-top: -60px;" href="#learn">Learn More</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="page-content">
+<div class="da-section da-work bg-secondary" id="learn">
+  <div class="container">
+    <div class="h3 pb-3 text-center text-white" data-aos="fade-up">Features</div>
+    <p class="px-5 pb-5 text-center text-white" data-aos="fade-up">Identify and target your specific stuttering symptoms through our individual and community modes.</p>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-3" data-aos="flip-left">
+          <div class="card-body mt-4 mb-1 text-center"><i class="pb-3 text-primary fas fa-briefcase fa-3x"></i>
+            <div class="h4 pb-3">Diagnosis</div>
+            <p>Our novel deep and supervised learning AI models can pinpoint the severity of various stuttering symptoms in a matter of seconds from a short recording of your speech.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3" data-aos="zoom-in-up">
+          <div class="card-body mt-4 mb-1 text-center"><i class="pb-3 text-primary fas fa-sliders-h fa-3x"></i>
+            <div class="h4 pb-3">Training</div>
+            <p>Receive personalized training exercise suggestions catered to your unique disfluency pattern that actively respond to your changing improvement rate.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3" data-aos="flip-right">
+          <div class="card-body mt-4 mb-1 text-center"><i class="pb-3 text-primary fas fa-trophy fa-3x"></i>
+            <div class="h4 pb-3">Community</div>
+            <p>Become a part of the worldwide stuttering community through an inclusive forum, a motivational storyboard, and team-centered games and exercises.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="da-section">
+  <div class="container">
+    <div class="h3 text-center" data-aos="fade-up">Meet our Team</div>
+  </div>
+  <div class="da-team carousel slide py-5" id="da-carouselIndicator" data-ride="carousel" data-aos="zoom-in-up" data-aos-duration="1000">
+    <div class="container">
+      <ol class="carousel-indicators">
+        <li class="active" data-target="#da-carouselIndicator" data-slide-to="0"></li>
+        <li data-target="#da-carouselIndicator" data-slide-to="1"></li>
+      </ol>
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <div class="row">
+            <div class="col-md-4" style = "left:130px">
+              <div class="card d-block mb-3"><img class="card-img-top" src="images/Keerthana.png" alt="image" />
+                <div class="card-body text-center">
+                  <div class="h5" >Keerthana Nallamotu</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4" style = "left:260px">
+              <div class="card d-block mb-3"><img class="card-img-top" src="images/Nick.png" alt="image"height = "375px"/>
+                <div class="card-body text-center">
+                  <div class="h5">Nick Jiang</div>
+                </div>
+              </div>
+            </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="da-section">
+  <div class="container da-company-brand py-5">
+    <div class="h3 pb-3 text-uppercase text-center" data-aos="fade-up" style = "top: -80px;">Partners</div>
+    <div class="row">
+      <div class="col-md-3 text-center"><h5>A Free Voice</h5></div>
+      <div class="col-md-3 text-center"><h5>Speak Out Foundation</h5></div>
+      <div class="col-md-3 text-center"><h5>National Stuttering Association</h5></div>
+      <div class="col-md-3 text-center"><h5>CSU East Bay Support Group`</h5></div>
+      <!--<div class="col-md-3 text-center"><img class="img-fluid" src="images/company-2.jpg" alt="Company Image 2"/></div>
+      <div class="col-md-3 text-center"><img class="img-fluid" src="images/company-3.jpg" alt="Company Image 3"/></div>
+      <div class="col-md-3 text-center"><img class="img-fluid" src="images/company-4.jpg" alt="Company Image 4"/></div>-->
+    </div>
+  </div>
+</div>
+<!--<div class="da-contact" id="contact">
+  <div class="da-contact-detail" data-aos="zoom-in" data-aos-duration="1000">
+    <div class="container">
+      <div class="card py-4 px-4">
+        <div class="h4 pb-4">Contact Us</div>
+        <div class="row">
+          <div class="col-md-7 col-sm-12 mb-3">
+            <div class="da-contact-message">
+              <form action="https://formspree.io/your@email.com" method="POST">
+                <div class="row">
+                  <div class="col-md-6 col-sm-12 mb-3">
+                    <input class="mr-3 form-control" type="text" name="first-name" placeholder="*First Name" required="required"/>
+                  </div>
+                  <div class="col-md-6 col-sm-12 mb-3">
+                    <input class="form-control" type="text" name="last-name" placeholder="Last Name"/>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col">
+                    <input class="form-control" type="text" name="Subject" placeholder="*Subject" required="required"/>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col">
+                    <input class="form-control" type="email" name="_replyto" placeholder="*E-mail" required="required"/>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col">
+                    <textarea class="form-control" name="message" placeholder="*Your Message" rows="4" required="required"></textarea>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <button class="btn btn-primary" type="submit">Send</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+    </div>-->
+    <footer class="bg-secondary da-section">
+      <div class="container text-white">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="h2">Questions? Want to just say hi?</div>
+            <p class="mb-0">Contact us at stutterless@gmail.com!</p>
+            <p>+1 502-257-1157</p>
+          </div>
+          <div class="col-md-4">
+            <div class="h6 pb-2">Follow Us</div>
+            <ul>
+              <li><a class="da-social-link" href="#">Twitter</a></li>
+              <li><a class="da-social-link" href="#">Facebook</a></li>
+              <li><a class="da-social-link" href="#">Instagram</a></li>
+              <li><a class="da-social-link" href="#">Google</a></li>
+              <li><a class="da-social-link" href="#">Behance</a></li>
+            </ul>
+          </div>
+          <!--<div class="col-md-4">
+            <div class="h6 pb-2">Copyright</div>
+            <p>&copy; 2018 Digital Agency. All rights reserved.</p>
+            <p>Design - <a class="credit" href="https://templateflip.com" target="_blank">TemplateFlip</a></p>
+          </div>-->
+        </div>
+      </div>
+    </footer>
+    <div id="scrolltop">
+      <button class="btn btn-primary"><span class="icon"><i class="fas fa-angle-up fa-2x"></i></span></button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="js/aos.js"></script>
+    <script src="js/ekko-lightbox.min.js"></script>
+    <script src="scripts/main.js"></script>
+  </body>
+</html>
